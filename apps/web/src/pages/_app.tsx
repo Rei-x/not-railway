@@ -13,7 +13,9 @@ const MyApp: AppType = ({ Component, pageProps: { ...pageProps } }) => {
   return (
     <NextUIProvider>
       <ApolloProvider client={client}>
-        <Component {...pageProps} />
+        <main className="bg-background text-foreground dark">
+          <Component {...pageProps} />
+        </main>
       </ApolloProvider>
     </NextUIProvider>
   );

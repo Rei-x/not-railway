@@ -2,7 +2,7 @@
   "name": "api",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "src/shared.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "tsx watch --clear-screen=false src/index.ts"
@@ -11,10 +11,13 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@kubernetes/client-node": "^0.18.1",
     "@pothos/core": "^3.33.1",
+    "@pothos/plugin-validation": "^3.10.0",
     "@prisma/client": "5.2.0",
     "graphql": "^16.8.0",
-    "graphql-yoga": "^4.0.4"
+    "graphql-yoga": "^4.0.4",
+    "zod": "^3.21.4"
   },
   "devDependencies": {
     "prisma": "^5.2.0",

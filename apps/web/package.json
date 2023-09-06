@@ -43,7 +43,8 @@
     "prettier": "^3.0.0",
     "prettier-plugin-tailwindcss": "^0.5.1",
     "tailwindcss": "^3.3.3",
-    "typescript": "^5.2.2"
+    "typescript": "^5.2.2",
+    "api": "workspace:*"
   },
   "ct3aMetadata": {
     "initVersion": "7.19.0"

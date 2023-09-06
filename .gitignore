@@ -10,7 +10,7 @@
 
 # production
 /build
-
+istio-*
 # misc
 .DS_Store
 *.pem

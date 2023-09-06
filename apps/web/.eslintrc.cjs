@@ -3,6 +3,7 @@ const config = {
   parser: "@typescript-eslint/parser",
   parserOptions: {
     project: true,
+    tsconfigRootDir: __dirname,
   },
   ignorePatterns: ["gql"],
   plugins: ["@typescript-eslint"],

@@ -19,12 +19,13 @@ export type Scalars = {
 export type Query = {
   __typename?: 'Query';
   hello: Scalars['String']['output'];
+  namespaces: Array<Scalars['String']['output']>;
 };
 
-export type MarioQueryVariables = Exact<{ [key: string]: never; }>;
+export type NamespacesQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type MarioQuery = { __typename?: 'Query', hello: string };
+export type NamespacesQuery = { __typename?: 'Query', namespaces: Array<string> };
 
 
-export const MarioDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"Mario"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"hello"}}]}}]} as unknown as DocumentNode<MarioQuery, MarioQueryVariables>;
+export const NamespacesDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"Namespaces"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"namespaces"}}]}}]} as unknown as DocumentNode<NamespacesQuery, NamespacesQueryVariables>;
