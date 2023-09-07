@@ -21,7 +21,10 @@ sudo systemctl restart systemd-resolved
 sudo swapoff -a
 
 # keeps the swap off during reboot
-(crontab -l 2>/dev/null; echo "@reboot /sbin/swapoff -a") | crontab - || true
+(
+	crontab -l 2>/dev/null
+	echo "@reboot /sbin/swapoff -a"
+) | crontab - || true
 sudo apt-get update -y
 # Install CRI-O Runtime
 
@@ -58,7 +61,7 @@ curl -L https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/
 sudo apt-get update
 sudo apt-get install cri-o cri-o-runc -y
 
-cat >> /etc/default/crio << EOF
+cat >>/etc/default/crio <<EOF
 ${ENVIRONMENT}
 EOF
 sudo systemctl daemon-reload
@@ -73,11 +76,10 @@ curl -fsSL https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo gpg --de
 echo "deb [signed-by=/etc/apt/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee /etc/apt/sources.list.d/kubernetes.list
 sudo apt-get update -y
 sudo apt-get install -y kubelet="$KUBERNETES_VERSION" kubectl="$KUBERNETES_VERSION" kubeadm="$KUBERNETES_VERSION"
-sudo apt-get update -y
-sudo apt-get install -y jq
+sudo apt-get install jq open-iscsi nfs-common -y
 
 local_ip="$(ip --json a s | jq -r '.[] | if .ifname == "eth1" then .addr_info[] | if .family == "inet" then .local else empty end else empty end')"
-cat > /etc/default/kubelet << EOF
+cat >/etc/default/kubelet <<EOF
 KUBELET_EXTRA_ARGS=--node-ip=$local_ip
 ${ENVIRONMENT}
 EOF

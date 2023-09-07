@@ -60,6 +60,7 @@ helm repo add traefik https://traefik.github.io/charts
 kubectl get configmap kube-proxy -n kube-system -o yaml |
   sed -e "s/strictARP: false/strictARP: true/" |
   kubectl apply -f - -n kube-system
+kubectl taint nodes --all node-role.kubernetes.io/control-plane:NoSchedule-
 
 kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.13.11/config/manifests/metallb-native.yaml
 
