@@ -8,12 +8,23 @@ const config: CodegenConfig = {
   generates: {
     "src/gql/": {
       preset: "client",
-      plugins: [],
+      plugins: [
+        {
+          "named-operations-object": {
+            useConsts: true,
+          },
+        },
+      ],
       config: {
         avoidOptionals: true,
         flattenGeneratedTypes: true,
+        useConsts: true,
         useTypeImports: true,
         flattenGeneratedTypesIncludeFragments: true,
+        scalars: {
+          Date: "string",
+          JSON: "Record<string, any>",
+        },
       },
       presetConfig: {
         gqlTagName: "gql",

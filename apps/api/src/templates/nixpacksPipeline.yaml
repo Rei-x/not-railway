@@ -1,0 +1,58 @@
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: clone-nixpacks-build-push
+spec:
+  description: |
+    This pipeline clones a git repo, creates Dockerfile with nixpacks, builds a Docker image with Kaniko and pushes it to a registry
+  params:
+    - name: repo-url
+      type: string
+    - name: image-reference
+      type: string
+    - name: working-dir
+      type: string
+      default: .
+  workspaces:
+    - name: shared-data
+    - name: docker-credentials
+  tasks:
+    - name: fetch-source
+      taskRef:
+        name: git-clone
+      workspaces:
+        - name: output
+          workspace: shared-data
+      params:
+        - name: url
+          value: $(params.repo-url)
+    - name: prepare-dockerfile
+      runAfter: ["fetch-source"]
+      taskRef:
+        name: nixpacks
+      workspaces:
+        - name: output
+          workspace: shared-data
+    - name: build-push
+      runAfter: ["prepare-dockerfile"]
+      taskRef:
+        name: kaniko
+      workspaces:
+        - name: source
+          workspace: shared-data
+        - name: dockerconfig
+          workspace: docker-credentials
+      params:
+        - name: IMAGE
+          value: $(params.image-reference)
+        - name: DOCKERFILE
+          value: $(params.working-dir)/.nixpacks/Dockerfile
+        - name: CONTEXT
+          value: $(params.working-dir)
+        - name: EXTRA_ARGS
+          value:
+            - --compressed-caching=false
+            - --single-snapshot
+            - --cache=true
+        - name: BUILDER_IMAGE
+          value: gcr.io/kaniko-project/executor:latest

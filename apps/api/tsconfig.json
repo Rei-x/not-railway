@@ -9,6 +9,7 @@
     "strict": true,
     "moduleResolution": "node",
     "skipLibCheck": true,
-    "incremental": true
+    "incremental": true,
+    "allowSyntheticDefaultImports": true
   }
 }

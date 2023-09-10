@@ -1,0 +1,14 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: nixpacks
+spec:
+  workspaces:
+    - name: output
+      description: The directory where the source code is located
+  steps:
+    - name: build-sources
+      image: ghcr.io/rei-x/not-railway/builder:latest
+      script: |
+        cd /workspace/output
+        nixpacks build -o . .

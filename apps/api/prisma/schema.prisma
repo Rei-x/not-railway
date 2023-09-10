@@ -2,23 +2,46 @@ generator client {
   provider = "prisma-client-js"
 }
 
+generator pothos {
+  provider    = "prisma-pothos-types"
+  prismaUtils = true
+}
+
 datasource db {
   provider = "sqlite"
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id    Int     @id @default(autoincrement())
-  email String  @unique
-  name  String?
-  posts Post[]
+model Project {
+  id        Int       @id @default(autoincrement())
+  name      String
+  Service   Service[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
 }
 
-model Post {
-  id        Int     @id @default(autoincrement())
-  title     String
-  content   String?
-  published Boolean @default(false)
-  author    User    @relation(fields: [authorId], references: [id])
-  authorId  Int
+model Service {
+  id             Int          @id @default(autoincrement())
+  name           String
+  project        Project      @relation(fields: [projectId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  projectId      Int
+  builder        String
+  githubRepoUrl  String?
+  dockerImageUrl String?
+  port           Int          @default(80)
+  Deployment     Deployment[]
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+}
+
+model Deployment {
+  id             Int      @id @default(autoincrement())
+  service        Service  @relation(fields: [serviceId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  serviceId      Int
+  status         String
+  isActive       Boolean  @default(false)
+  pipelineName   String   @unique
+  dockerImageUrl String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 }
