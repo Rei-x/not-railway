@@ -251,7 +251,7 @@ builder.mutationFields((t) => ({
         imageReference,
         repoUrl: oldService.githubRepoUrl,
         useNixpacks: oldService.builder === "nixpacks",
-        envVariables: envSchema.parse(JSON.stringify(oldService.envVars)),
+        envVariables: envSchema.parse(JSON.parse(oldService.envVars)),
       });
 
       invariant(pipelineName);
