@@ -16,6 +16,9 @@ const config = {
       },
     ];
   },
+  images: {
+    domains: ["cataas.com"],
+  },
 };
 
 export default config;

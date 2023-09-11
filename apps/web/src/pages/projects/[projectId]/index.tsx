@@ -1,17 +1,11 @@
 import { ProjectLayout } from "@/components/ProjectLayout";
 import { gql } from "@/gql";
 import { useQuery } from "@apollo/client";
-import {
-  Card,
-  CardHeader,
-  CardFooter,
-  Spinner,
-  Image,
-  CardBody,
-} from "@nextui-org/react";
+import { Card, CardHeader, Spinner, Image, CardBody } from "@nextui-org/react";
 import { useRouter } from "next/router";
 import React from "react";
 import Link from "next/link";
+import NextImage from "next/image";
 import { CreateService } from "@/components/CreateService";
 
 const Page = () => {
@@ -66,10 +60,12 @@ const Page = () => {
               </CardHeader>
               <CardBody className="flex items-center justify-center overflow-visible py-2">
                 <Image
+                  as={NextImage}
                   alt="Card background"
                   className="rounded-xl object-cover"
-                  src={`https://cataas.com/cat/gif/says/${service.name}?width=400&height=300`}
-                  width={270}
+                  src={`https://cataas.com/cat/gif/says/${service.name}?width=300&height=200`}
+                  width={300}
+                  height={200}
                 />
               </CardBody>
             </Card>

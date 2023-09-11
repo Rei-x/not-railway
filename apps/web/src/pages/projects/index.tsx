@@ -8,7 +8,6 @@ import {
   CardHeader,
   CardFooter,
   Spinner,
-  Image,
 } from "@nextui-org/react";
 import Link from "next/link";
 import { PlusIcon } from "lucide-react";
