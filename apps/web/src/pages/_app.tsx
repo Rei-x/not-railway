@@ -3,20 +3,23 @@ import { type AppType } from "next/app";
 import { NextUIProvider } from "@nextui-org/react";
 import { ApolloClient, InMemoryCache, ApolloProvider } from "@apollo/client";
 import "@/styles/globals.css";
-import { splitLink } from "@/api/link";
+import { env } from "@/env.mjs";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const client = new ApolloClient({
   cache: new InMemoryCache(),
-  link: splitLink,
+  uri: `${env.NEXT_PUBLIC_API_URL}/graphql`,
 });
 
 const MyApp: AppType = ({ Component, pageProps: { ...pageProps } }) => {
   return (
     <NextUIProvider>
       <ApolloProvider client={client}>
-        <main className="bg-background text-foreground dark">
+        <main>
           <Component {...pageProps} />
         </main>
+        <ToastContainer position="top-center" theme="dark" />
       </ApolloProvider>
     </NextUIProvider>
   );

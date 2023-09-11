@@ -13,6 +13,10 @@ spec:
     - name: working-dir
       type: string
       default: .
+    - name: env-variables
+      type: string
+      description: env in format "VAR1=VALUE1 VAR2=VALUE2"
+      default: ""
   workspaces:
     - name: shared-data
     - name: docker-credentials
@@ -33,6 +37,9 @@ spec:
       workspaces:
         - name: output
           workspace: shared-data
+      params:
+        - name: envVariables
+          value: $(params.env-variables)
     - name: build-push
       runAfter: ["prepare-dockerfile"]
       taskRef:

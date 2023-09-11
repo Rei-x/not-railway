@@ -8,6 +8,7 @@ import {
   CardHeader,
   CardFooter,
   Spinner,
+  Image,
 } from "@nextui-org/react";
 import Link from "next/link";
 import { PlusIcon } from "lucide-react";
@@ -63,7 +64,7 @@ const Projects = () => {
             Create new
           </Button>
         </div>
-        <div className="mt-5 flex w-full max-w-screen-xl gap-4">
+        <div className="mt-5 flex w-full gap-4">
           {projects.data?.projects
             ?.filter((project) => project.name.includes(search))
             .map((project) => (
@@ -78,7 +79,6 @@ const Projects = () => {
                 <CardHeader className="flex gap-3">
                   <p className="text-lg font-bold">{project.name}</p>
                 </CardHeader>
-
                 <CardFooter className="text-gray-500">
                   {project.servicesCount} services
                 </CardFooter>

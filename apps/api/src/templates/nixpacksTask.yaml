@@ -3,12 +3,18 @@ kind: Task
 metadata:
   name: nixpacks
 spec:
+  params:
+    - name: envVariables
+      description: env in format "VAR1=VALUE1 VAR2=VALUE2"
+      type: string
   workspaces:
     - name: output
       description: The directory where the source code is located
   steps:
     - name: build-sources
-      image: ghcr.io/rei-x/not-railway/builder:latest
+      image: ghcr.io/rei-x/not-railway/nixpacks-builder:latest
+      env:
+        - name: ENV_VARIABLES_CLI
+          value: $(params.envVariables)
       script: |
-        cd /workspace/output
-        nixpacks build -o . .
+        npx tsx /app/run.ts "${ENV_VARIABLES_CLI}" /workspace/output

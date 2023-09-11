@@ -16,7 +16,6 @@ const config: CodegenConfig = {
         },
       ],
       config: {
-        avoidOptionals: true,
         flattenGeneratedTypes: true,
         useConsts: true,
         useTypeImports: true,

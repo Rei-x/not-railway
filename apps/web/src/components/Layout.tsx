@@ -1,9 +1,29 @@
-import { Navbar, NavbarBrand, Tab, Tabs } from "@nextui-org/react";
+import { Link, Navbar, NavbarBrand, Tab, Tabs } from "@nextui-org/react";
 import Head from "next/head";
+import NextLink from "next/link";
 import { useRouter } from "next/router";
 import React, { type PropsWithChildren } from "react";
 
 export const EmptyLayout = ({ children }: PropsWithChildren) => {
+  const router = useRouter();
+
+  const generateBreadcrumb = (): string[] => {
+    const path = router.asPath.split("/").slice(1);
+
+    const breadcrumb = path.map((_, index) => {
+      const newPath = [...path];
+      newPath.splice(index + 1, path.length - index);
+
+      const href = newPath.join("/");
+
+      return href;
+    });
+
+    return breadcrumb;
+  };
+
+  console.log(generateBreadcrumb());
+
   return (
     <>
       <Head>
@@ -16,6 +36,25 @@ export const EmptyLayout = ({ children }: PropsWithChildren) => {
         <Navbar maxWidth="full">
           <NavbarBrand>
             <p className="font-bold text-inherit">NotRailway</p>
+            <div className="ml-4 flex gap-2">
+              {generateBreadcrumb().map((href, index) => (
+                <>
+                  <Link
+                    color="primary"
+                    as={NextLink}
+                    href={`/${href}`}
+                    className="hover:underline"
+                    key={href}
+                  >
+                    {href.split("/").pop()}
+                  </Link>
+                  <p>
+                    {" "}
+                    {index !== generateBreadcrumb().length - 1 ? "/" : null}
+                  </p>
+                </>
+              ))}
+            </div>
           </NavbarBrand>
         </Navbar>
         {children}
@@ -48,7 +87,6 @@ export const Layout = ({ children }: PropsWithChildren) => {
           title="Projects"
           className="flex h-full w-auto flex-col items-center justify-center"
         />
-        <Tab key="/settings" className="h-full w-auto" title="Settings" />
       </Tabs>
       {children}
     </EmptyLayout>

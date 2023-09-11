@@ -6,11 +6,12 @@ builder.prismaObject("Deployment", {
   fields: (t) => ({
     id: t.exposeID("id"),
     pipelineName: t.exposeString("pipelineName"),
-    status: t.exposeString("status"),
+    buildStatus: t.exposeString("buildStatus"),
     isActive: t.exposeBoolean("isActive"),
     createdAt: t.expose("createdAt", {
       type: "Date",
     }),
+    service: t.relation("service"),
     logs: t.string({
       resolve: (root) => {
         return client.logs(root.pipelineName);

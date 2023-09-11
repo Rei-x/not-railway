@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "build": "next build",
-    "dev": "conc npm:dev:*",
+    "dev": "wait-on http-get://localhost:4000/graphql && conc npm:dev:*",
     "dev:next": "next dev",
     "dev:codegen": "pnpm codegen --watch",
     "lint": "next lint",
@@ -13,18 +13,18 @@
   },
   "dependencies": {
     "@apollo/client": "^3.8.2",
-    "@graphql-typed-document-node/core": "^3.2.0",
     "@hookform/resolvers": "^3.3.1",
     "@nextui-org/react": "^2.1.10",
     "@t3-oss/env-nextjs": "^0.6.0",
     "framer-motion": "^10.16.2",
     "graphql": "^16.8.0",
-    "graphql-ws": "^5.14.0",
     "lucide-react": "^0.274.0",
     "next": "^13.4.13",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-hook-form": "^7.46.1",
+    "react-toastify": "^9.1.3",
+    "unique-names-generator": "^4.7.1",
     "zod": "^3.22.2"
   },
   "devDependencies": {
@@ -33,6 +33,7 @@
     "@graphql-codegen/introspection": "4.0.0",
     "@graphql-codegen/named-operations-object": "^2.3.1",
     "@graphql-codegen/typescript-apollo-client-helpers": "^2.2.6",
+    "@graphql-typed-document-node/core": "^3.2.0",
     "@parcel/watcher": "^2.3.0",
     "@types/eslint": "^8.44.2",
     "@types/node": "^18.16.0",
@@ -49,7 +50,8 @@
     "prettier": "^3.0.0",
     "prettier-plugin-tailwindcss": "^0.5.1",
     "tailwindcss": "^3.3.3",
-    "typescript": "^5.2.2"
+    "typescript": "^5.2.2",
+    "wait-on": "^7.0.1"
   },
   "ct3aMetadata": {
     "initVersion": "7.19.0"

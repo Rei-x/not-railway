@@ -1,11 +1,16 @@
+import { envSchema } from "@api/utils/parseEnv";
+import { z } from "zod";
+
 export const runTemplate = ({
   repoUrl,
   imageReference,
   useNixpacks = true,
+  envVariables,
 }: {
   repoUrl: string;
   imageReference: string;
   useNixpacks?: boolean;
+  envVariables?: z.infer<typeof envSchema>;
 }) => `apiVersion: tekton.dev/v1beta1
 kind: PipelineRun
 metadata:
@@ -32,4 +37,12 @@ spec:
     - name: repo-url
       value: ${repoUrl}
     - name: image-reference
-      value: ${imageReference}`;
+      value: ${imageReference}
+${
+  useNixpacks && envVariables
+    ? `    - name: env-variables
+      value: ${envVariables
+        .map(({ value, name }) => `${name}=${value}`)
+        .join(" ")}`
+    : ``
+}`;

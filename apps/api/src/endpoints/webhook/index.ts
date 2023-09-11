@@ -1,9 +1,10 @@
-import { prisma, publishUpdatedById } from "@api/db";
-import * as fs from "fs";
+import { prisma } from "@api/db";
 import { webhookSchema } from "./webhookSchema";
 import { RequestHandler } from "express";
 import { client } from "@api/client";
 import invariant from "tiny-invariant";
+import { nanoid } from "nanoid";
+import { envSchema } from "@api/utils/parseEnv";
 
 export const webhookHandler: RequestHandler = async (req, res) => {
   const pipelineRunBody = webhookSchema.safeParse(req.body);
@@ -17,20 +18,18 @@ export const webhookHandler: RequestHandler = async (req, res) => {
     console.log(`Reason: ${pipelineRun.status.conditions.at(0)?.reason}`);
     console.log("\n");
     try {
-      const { id } = await prisma.deployment.update({
-        select: {
-          id: true,
-        },
+      await prisma.deployment.update({
         where: {
           pipelineName,
         },
         data: {
-          status,
+          buildStatus: status,
         },
       });
-      publishUpdatedById({ model: "Deployment", id });
     } catch (e) {
       console.log("deployment doesnt exist");
+
+      return;
     }
 
     if (status === "Succeeded") {
@@ -46,7 +45,9 @@ export const webhookHandler: RequestHandler = async (req, res) => {
       invariant(deployment.dockerImageUrl);
 
       try {
-        await client.deleteDeployment(deployment.service.name);
+        if (deployment.service.deploymentName) {
+          await client.deleteService(deployment.service.deploymentName);
+        }
       } catch (e) {}
 
       await prisma.deployment.updateMany({
@@ -58,10 +59,25 @@ export const webhookHandler: RequestHandler = async (req, res) => {
         },
       });
 
-      await client.deploy({
-        deploymentName: deployment.service.name,
+      const deploymentName =
+        deployment.service.deploymentName ??
+        nanoid().replace("_", "").replace("-", "").toLowerCase();
+
+      await client.deployService({
+        deploymentName,
+        domainName: deployment.service.subdomain,
         imageReference: deployment.dockerImageUrl,
         port: deployment.service.port,
+        envVariables: envSchema.parse(JSON.parse(deployment.service.envVars)),
+      });
+
+      await prisma.service.update({
+        where: {
+          id: deployment.serviceId,
+        },
+        data: {
+          deploymentName,
+        },
       });
 
       const { id } = await prisma.deployment.update({
@@ -75,10 +91,7 @@ export const webhookHandler: RequestHandler = async (req, res) => {
           isActive: true,
         },
       });
-
-      publishUpdatedById({ model: "Deployment", id });
     }
-  } else {
   }
 
   res.status(200).send("ok");

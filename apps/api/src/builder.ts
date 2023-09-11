@@ -6,10 +6,6 @@ import PrismaPluginUtils from "@pothos/plugin-prisma-utils";
 import WithInputPlugin from "@pothos/plugin-with-input";
 import type PrismaTypes from "@pothos/plugin-prisma/generated";
 import { prisma } from "./db";
-import SmartSubscriptionsPlugin, {
-  subscribeOptionsFromIterator,
-} from "@pothos/plugin-smart-subscriptions";
-import { PubSub } from "graphql-subscriptions";
 import { DateTimeResolver, JSONResolver } from "graphql-scalars";
 
 export const builder = new SchemaBuilder<{
@@ -24,9 +20,6 @@ export const builder = new SchemaBuilder<{
       Output: Date;
     };
   };
-  Context: {
-    pubsub: PubSub;
-  };
 }>({
   plugins: [
     ValidationPlugin,
@@ -34,7 +27,6 @@ export const builder = new SchemaBuilder<{
     PrismaPlugin,
     PrismaPluginUtils,
     WithInputPlugin,
-    SmartSubscriptionsPlugin,
   ],
   validationOptions: {
     // optionally customize how errors are formatted
@@ -47,11 +39,6 @@ export const builder = new SchemaBuilder<{
     client: prisma,
     filterConnectionTotalCount: true,
     onUnusedQuery: process.env.NODE_ENV === "production" ? null : "warn",
-  },
-  smartSubscriptions: {
-    ...subscribeOptionsFromIterator((name, { pubsub }) => {
-      return pubsub.asyncIterator(name);
-    }),
   },
 });
 

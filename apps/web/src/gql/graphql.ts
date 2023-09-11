@@ -20,14 +20,26 @@ export type Scalars = {
   JSON: { input: Record<string, any>; output: Record<string, any>; }
 };
 
+export enum Buildpacks {
+  Docker = 'docker',
+  Nixpacks = 'nixpacks'
+}
+
 export type Deployment = {
   __typename?: 'Deployment';
+  buildStatus: Scalars['String']['output'];
   createdAt: Scalars['Date']['output'];
   id: Scalars['ID']['output'];
   isActive: Scalars['Boolean']['output'];
   logs: Scalars['String']['output'];
   pipelineName: Scalars['String']['output'];
-  status: Scalars['String']['output'];
+  service: Service;
+};
+
+export type EnvVar = {
+  __typename?: 'EnvVar';
+  name: Scalars['String']['output'];
+  value: Scalars['String']['output'];
 };
 
 export type Mutation = {
@@ -35,11 +47,13 @@ export type Mutation = {
   createProject: Project;
   createService: Service;
   deleteService: Service;
+  redeployService: Service;
+  updateService: Service;
 };
 
 
 export type MutationCreateProjectArgs = {
-  name: InputMaybe<Scalars['String']['input']>;
+  name?: InputMaybe<Scalars['String']['input']>;
 };
 
 
@@ -50,6 +64,17 @@ export type MutationCreateServiceArgs = {
 
 export type MutationDeleteServiceArgs = {
   id: Scalars['Int']['input'];
+};
+
+
+export type MutationRedeployServiceArgs = {
+  id: Scalars['Int']['input'];
+};
+
+
+export type MutationUpdateServiceArgs = {
+  id: Scalars['Int']['input'];
+  input: ServiceUpdateInput;
 };
 
 export type Project = {
@@ -85,62 +110,42 @@ export type QueryServicesArgs = {
 
 export type Service = {
   __typename?: 'Service';
+  builder: Buildpacks;
   deployments: Array<Deployment>;
-  dockerImageUrl: Maybe<Scalars['String']['output']>;
-  githubRepoUrl: Maybe<Scalars['String']['output']>;
+  dockerImageUrl?: Maybe<Scalars['String']['output']>;
+  envVars: Array<EnvVar>;
+  githubRepoUrl?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
   name: Scalars['String']['output'];
   port: Scalars['Int']['output'];
+  status: Scalars['String']['output'];
+  subdomain: Scalars['String']['output'];
 };
 
 export type ServiceCreate = {
+  builder?: Buildpacks;
+  envVars?: InputMaybe<Scalars['String']['input']>;
   githubRepoUrl: Scalars['String']['input'];
+  name?: InputMaybe<Scalars['String']['input']>;
   port: Scalars['Int']['input'];
   projectId: Scalars['Int']['input'];
 };
 
-export type Subscription = {
-  __typename?: 'Subscription';
-  deployments: Array<Deployment>;
-  service: Service;
-  services: Array<Service>;
+export type ServiceUpdateInput = {
+  builder?: InputMaybe<Buildpacks>;
+  domain?: InputMaybe<Scalars['String']['input']>;
+  envVars?: InputMaybe<Scalars['String']['input']>;
+  githubRepoUrl?: InputMaybe<Scalars['String']['input']>;
+  name?: InputMaybe<Scalars['String']['input']>;
+  port?: InputMaybe<Scalars['Int']['input']>;
 };
-
-
-export type SubscriptionDeploymentsArgs = {
-  serviceId: Scalars['Int']['input'];
-};
-
-
-export type SubscriptionServiceArgs = {
-  id: Scalars['Int']['input'];
-};
-
-
-export type SubscriptionServicesArgs = {
-  projectId: Scalars['Int']['input'];
-};
-
-export type ServicesQueryVariables = Exact<{
-  projectId: Scalars['Int']['input'];
-}>;
-
-
-export type ServicesQuery = { __typename?: 'Query', services: Array<{ __typename?: 'Service', id: string, name: string, port: number, githubRepoUrl: string | null, dockerImageUrl: string | null, deployments: Array<{ __typename?: 'Deployment', id: string, pipelineName: string, status: string }> }> };
 
 export type CreateServiceMutationVariables = Exact<{
   input: ServiceCreate;
 }>;
 
 
-export type CreateServiceMutation = { __typename?: 'Mutation', createService: { __typename?: 'Service', deployments: Array<{ __typename?: 'Deployment', pipelineName: string, status: string }> } };
-
-export type DeploymentsQueryVariables = Exact<{
-  serviceId: Scalars['Int']['input'];
-}>;
-
-
-export type DeploymentsQuery = { __typename?: 'Query', deployments: Array<{ __typename?: 'Deployment', pipelineName: string, id: string, createdAt: string, status: string, logs: string, isActive: boolean }>, service: { __typename?: 'Service', id: string, name: string } };
+export type CreateServiceMutation = { __typename?: 'Mutation', createService: { __typename?: 'Service', id: string } };
 
 export type DeleteServiceMutationVariables = Exact<{
   id: Scalars['Int']['input'];
@@ -148,6 +153,35 @@ export type DeleteServiceMutationVariables = Exact<{
 
 
 export type DeleteServiceMutation = { __typename?: 'Mutation', deleteService: { __typename?: 'Service', id: string } };
+
+export type ServicesQueryVariables = Exact<{
+  projectId: Scalars['Int']['input'];
+}>;
+
+
+export type ServicesQuery = { __typename?: 'Query', services: Array<{ __typename?: 'Service', id: string, name: string, port: number, subdomain: string, githubRepoUrl?: string | null, dockerImageUrl?: string | null }> };
+
+export type RedeployServiceMutationVariables = Exact<{
+  id: Scalars['Int']['input'];
+}>;
+
+
+export type RedeployServiceMutation = { __typename?: 'Mutation', redeployService: { __typename?: 'Service', id: string } };
+
+export type UpdateServiceMutationVariables = Exact<{
+  id: Scalars['Int']['input'];
+  input: ServiceUpdateInput;
+}>;
+
+
+export type UpdateServiceMutation = { __typename?: 'Mutation', updateService: { __typename?: 'Service', id: string } };
+
+export type DeploymentsQueryVariables = Exact<{
+  serviceId: Scalars['Int']['input'];
+}>;
+
+
+export type DeploymentsQuery = { __typename?: 'Query', deployments: Array<{ __typename?: 'Deployment', pipelineName: string, id: string, createdAt: string, buildStatus: string, logs: string, isActive: boolean }>, service: { __typename?: 'Service', id: string, name: string, status: string, githubRepoUrl?: string | null, port: number, builder: Buildpacks, subdomain: string, envVars: Array<{ __typename?: 'EnvVar', name: string, value: string }> } };
 
 export type ProjectsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -160,10 +194,12 @@ export type CreateProjectMutationVariables = Exact<{ [key: string]: never; }>;
 export type CreateProjectMutation = { __typename?: 'Mutation', createProject: { __typename?: 'Project', id: string } };
 
 
-export const ServicesDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"Services"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"projectId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"services"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"projectId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"projectId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"port"}},{"kind":"Field","name":{"kind":"Name","value":"githubRepoUrl"}},{"kind":"Field","name":{"kind":"Name","value":"dockerImageUrl"}},{"kind":"Field","name":{"kind":"Name","value":"deployments"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"pipelineName"}},{"kind":"Field","name":{"kind":"Name","value":"status"}}]}}]}}]}}]} as unknown as DocumentNode<ServicesQuery, ServicesQueryVariables>;
-export const CreateServiceDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"CreateService"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ServiceCreate"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"createService"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"deployments"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"pipelineName"}},{"kind":"Field","name":{"kind":"Name","value":"status"}}]}}]}}]}}]} as unknown as DocumentNode<CreateServiceMutation, CreateServiceMutationVariables>;
-export const DeploymentsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"Deployments"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"serviceId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"deployments"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"serviceId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"serviceId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"pipelineName"}},{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"logs"}},{"kind":"Field","name":{"kind":"Name","value":"isActive"}}]}},{"kind":"Field","name":{"kind":"Name","value":"service"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"serviceId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}}]}}]}}]} as unknown as DocumentNode<DeploymentsQuery, DeploymentsQueryVariables>;
+export const CreateServiceDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"CreateService"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ServiceCreate"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"createService"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}}]}}]}}]} as unknown as DocumentNode<CreateServiceMutation, CreateServiceMutationVariables>;
 export const DeleteServiceDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"DeleteService"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"id"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"deleteService"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"id"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}}]}}]}}]} as unknown as DocumentNode<DeleteServiceMutation, DeleteServiceMutationVariables>;
+export const ServicesDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"Services"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"projectId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"services"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"projectId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"projectId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"port"}},{"kind":"Field","name":{"kind":"Name","value":"subdomain"}},{"kind":"Field","name":{"kind":"Name","value":"githubRepoUrl"}},{"kind":"Field","name":{"kind":"Name","value":"dockerImageUrl"}}]}}]}}]} as unknown as DocumentNode<ServicesQuery, ServicesQueryVariables>;
+export const RedeployServiceDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"RedeployService"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"id"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"redeployService"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"id"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}}]}}]}}]} as unknown as DocumentNode<RedeployServiceMutation, RedeployServiceMutationVariables>;
+export const UpdateServiceDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"UpdateService"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"id"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ServiceUpdateInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"updateService"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"id"}}},{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}}]}}]}}]} as unknown as DocumentNode<UpdateServiceMutation, UpdateServiceMutationVariables>;
+export const DeploymentsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"Deployments"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"serviceId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"deployments"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"serviceId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"serviceId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"pipelineName"}},{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"buildStatus"}},{"kind":"Field","name":{"kind":"Name","value":"logs"}},{"kind":"Field","name":{"kind":"Name","value":"isActive"}}]}},{"kind":"Field","name":{"kind":"Name","value":"service"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"serviceId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"githubRepoUrl"}},{"kind":"Field","name":{"kind":"Name","value":"port"}},{"kind":"Field","name":{"kind":"Name","value":"builder"}},{"kind":"Field","name":{"kind":"Name","value":"subdomain"}},{"kind":"Field","name":{"kind":"Name","value":"envVars"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"value"}}]}}]}}]}}]} as unknown as DocumentNode<DeploymentsQuery, DeploymentsQueryVariables>;
 export const ProjectsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"Projects"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"projects"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"servicesCount"}}]}}]}}]} as unknown as DocumentNode<ProjectsQuery, ProjectsQueryVariables>;
 export const CreateProjectDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"CreateProject"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"createProject"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}}]}}]}}]} as unknown as DocumentNode<CreateProjectMutation, CreateProjectMutationVariables>;
 export const namedOperations = {
@@ -175,6 +211,8 @@ export const namedOperations = {
   Mutation: {
     CreateService: 'CreateService' as const,
     DeleteService: 'DeleteService' as const,
+    RedeployService: 'RedeployService' as const,
+    UpdateService: 'UpdateService' as const,
     CreateProject: 'CreateProject' as const
   }
 }

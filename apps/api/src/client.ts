@@ -1,6 +1,8 @@
 import * as k8s from "@kubernetes/client-node";
 import { exec } from "child_process";
 import { runTemplate } from "./templates/run";
+import { envSchema } from "./utils/parseEnv";
+import { z } from "zod";
 
 const kc = new k8s.KubeConfig();
 kc.loadFromDefault();
@@ -8,7 +10,6 @@ kc.loadFromDefault();
 const k8sApi = kc.makeApiClient(k8s.CoreV1Api);
 
 const deploymentApi = kc.makeApiClient(k8s.AppsV1Api);
-const client2 = k8s.KubernetesObjectApi.makeApiClient(kc);
 
 const ingressApi = kc.makeApiClient(k8s.NetworkingV1Api);
 
@@ -47,26 +48,23 @@ EOF`);
 };
 
 export const client = Object.freeze({
-  listNamespaces: async () => {
-    const { body } = await k8sApi.listNamespace();
-    return body.items
-      .map((item) => item.metadata?.name)
-      .filter((item): item is string => !!item);
-  },
   build: async ({
     repoUrl,
     imageReference,
     useNixpacks = true,
+    envVariables,
   }: {
     repoUrl: string;
     imageReference: string;
     useNixpacks?: boolean;
+    envVariables?: z.infer<typeof envSchema>;
   }) => {
     const stdout = await kubectlCreate(
       runTemplate({
         repoUrl,
         imageReference,
         useNixpacks,
+        envVariables,
       })
     );
 
@@ -76,13 +74,20 @@ export const client = Object.freeze({
       .replace("pipelinerun.tekton.dev/", "")
       .trim();
   },
-  deploy: async ({
+  deployService: async ({
     imageReference,
     deploymentName,
+    domainName,
+    envVariables,
     port,
   }: {
     imageReference: string;
     deploymentName: string;
+    domainName: string;
+    envVariables?: {
+      name: string;
+      value: string;
+    }[];
     port: number;
   }) => {
     const { body: deployment } = await deploymentApi.createNamespacedDeployment(
@@ -109,6 +114,7 @@ export const client = Object.freeze({
                 {
                   name: deploymentName,
                   image: imageReference,
+                  env: envVariables,
                   ports: [
                     {
                       containerPort: port,
@@ -144,7 +150,6 @@ export const client = Object.freeze({
       },
     });
 
-    // create ingress
     const { body: ingress } = await ingressApi.createNamespacedIngress(
       "default",
       {
@@ -157,13 +162,13 @@ export const client = Object.freeze({
         spec: {
           tls: [
             {
-              hosts: [`${deploymentName}.up.reix.tech`],
+              hosts: [`${domainName}.up.reix.tech`],
               secretName: `up-domain-secret`,
             },
           ],
           rules: [
             {
-              host: `${deploymentName}.up.reix.tech`,
+              host: `${domainName}.up.reix.tech`,
               http: {
                 paths: [
                   {
@@ -190,21 +195,48 @@ export const client = Object.freeze({
       deploymentName,
     };
   },
-  getDeployments: async () => {
-    const { body } = await deploymentApi.listNamespacedDeployment("default");
-    return body.items
-      .map((item) => item.metadata?.name)
-      .filter((item): item is string => !!item);
+  deleteService: async (serviceName: string) => {
+    await deploymentApi.deleteNamespacedDeployment(serviceName, "default");
+    await k8sApi.deleteNamespacedService(serviceName, "default");
+    await ingressApi.deleteNamespacedIngress(serviceName, "default");
   },
-  deleteDeployment: async (deploymentName: string) => {
-    await deploymentApi.deleteNamespacedDeployment(deploymentName, "default");
-    await k8sApi.deleteNamespacedService(deploymentName, "default");
-    await ingressApi.deleteNamespacedIngress(deploymentName, "default");
+  getServiceStatus: async (serviceName: string) => {
+    const { body } = await deploymentApi.readNamespacedDeploymentStatus(
+      serviceName,
+      "default"
+    );
+    return body.status?.readyReplicas === body.status?.replicas;
   },
   logs: async (pipelineName: string) => {
     const podName = `${pipelineName}-build-push-pod`;
     try {
       const logs = await getPodLogs(podName);
+      return logs;
+    } catch (e) {
+      return "";
+    }
+  },
+  getServiceLogs: async (deploymentName: string) => {
+    const { body: pods } = await k8sApi.listNamespacedPod(
+      "default",
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      `app=${deploymentName}`
+    );
+
+    const podName = pods.items[0].metadata?.name;
+
+    if (!podName) {
+      return "";
+    }
+
+    try {
+      const { body: logs } = await k8sApi.readNamespacedPodLog(
+        podName,
+        "default"
+      );
       return logs;
     } catch (e) {
       return "";

@@ -35,11 +35,6 @@ export const ProjectLayout = ({ children }: PropsWithChildren) => {
           title="Project"
           className="flex h-full w-auto flex-col items-center justify-center"
         />
-        <Tab
-          key={`/projects/${id?.toString()}/deployments`}
-          className="h-full w-auto"
-          title="Deployments"
-        />
       </Tabs>
       {children}
     </EmptyLayout>

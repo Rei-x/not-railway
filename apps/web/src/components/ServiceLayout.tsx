@@ -12,7 +12,7 @@ export const ServiceLayout = ({ children }: PropsWithChildren) => {
   if (!router.isReady) {
     return (
       <EmptyLayout>
-        <Spinner className="mx-auto" />
+        <Spinner className="mx-auto w-full" />
       </EmptyLayout>
     );
   }
@@ -35,11 +35,6 @@ export const ServiceLayout = ({ children }: PropsWithChildren) => {
           key={`/projects/${projectId?.toString()}/service/${serviceId?.toString()}`}
           title="Service"
           className="flex h-full w-auto flex-col items-center justify-center"
-        />
-        <Tab
-          key={`/projects/${projectId?.toString()}/service/${serviceId?.toString()}/env`}
-          className="h-full w-auto"
-          title="Env variables"
         />
       </Tabs>
       {children}
