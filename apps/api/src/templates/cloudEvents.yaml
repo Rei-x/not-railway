@@ -8,4 +8,4 @@ metadata:
     app.kubernetes.io/part-of: tekton-pipelines
 data:
   formats: tektonv1
-  sink: https://f9ba-77-65-179-68.ngrok-free.app/webhook
+  sink: https://not-railway-api.reix.tech/webhook

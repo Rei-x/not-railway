@@ -33,6 +33,7 @@ export const DeleteService = ({
         }
   `),
     {
+      awaitRefetchQueries: true,
       refetchQueries: [namedOperations.Query.Services],
     },
   );

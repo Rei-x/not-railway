@@ -75,6 +75,7 @@ const Page = () => {
         }
   `),
     {
+      awaitRefetchQueries: true,
       refetchQueries: [namedOperations.Query.Deployments],
     },
   );
@@ -88,6 +89,7 @@ const Page = () => {
         }
             `),
     {
+      awaitRefetchQueries: true,
       refetchQueries: [namedOperations.Query.Deployments],
     },
   );
