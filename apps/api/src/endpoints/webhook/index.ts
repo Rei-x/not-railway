@@ -61,7 +61,9 @@ export const webhookHandler: RequestHandler = async (req, res) => {
 
       const deploymentName =
         deployment.service.deploymentName ??
-        nanoid().replace("_", "").replace("-", "").toLowerCase();
+        "deploy-" +
+          nanoid().replace("_", "").replace("-", "").toLowerCase() +
+          "-hello";
 
       await client.deployService({
         deploymentName,
