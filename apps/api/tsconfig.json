@@ -5,8 +5,8 @@
       "@api/*": ["src/*"]
     },
     "types": ["vitest/importMeta"],
-    "target": "ES2022",
-    "module": "es2022",
+    "target": "ES2016",
+    "module": "CommonJS",
     "forceConsistentCasingInFileNames": true,
     "strict": true,
     "esModuleInterop": true,
