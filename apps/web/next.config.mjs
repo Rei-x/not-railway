@@ -7,7 +7,8 @@ await import("./src/env.mjs");
 /** @type {import("next").NextConfig} */
 const config = {
   reactStrictMode: true,
-  redirects() {
+  // eslint-disable-next-line @typescript-eslint/require-await
+  async redirects() {
     return [
       {
         source: "/",
