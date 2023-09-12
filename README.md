@@ -2,7 +2,7 @@
 
 # What is this?
 
-NotRailway is a hobby project to try to better understand challenges that come up when building such a PAAS like [Railway](https://railway.app/).
+NotRailway is a hobby project to try to better understand challenges that come up when building such a PaaS like [Railway](https://railway.app/).
 
 By no mean it is production ready. It is just a proof of concept.
 
